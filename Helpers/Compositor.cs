@@ -212,6 +212,22 @@ namespace MapAssist.Helpers
                             g.FillRectangle(new SolidBrush(poiSettings.IconColor), 0, 0, poiSettings.IconSize,
                                 poiSettings.IconSize);
                             break;
+                        case Shape.Polygon:
+                            var halfSize = (float)poiSettings.IconSize / 2;
+                            var cutSize = (float)poiSettings.IconSize / 10;
+
+                            PointF point1 = new PointF(0.0F, halfSize);
+                            PointF point2 = new PointF(halfSize - cutSize, halfSize - cutSize);
+                            PointF point3 = new PointF(halfSize, 0.0F);
+                            PointF point4 = new PointF(halfSize + cutSize, halfSize - cutSize);
+                            PointF point5 = new PointF((float)poiSettings.IconSize, halfSize);
+                            PointF point6 = new PointF(halfSize + cutSize, halfSize + cutSize);
+                            PointF point7 = new PointF(halfSize, (float)poiSettings.IconSize);
+                            PointF point8 = new PointF(halfSize - cutSize, halfSize + cutSize);
+                            PointF[] curvePoints = { point1, point2, point3, point4, point5, point6, point7, point8 };
+
+                            g.FillPolygon(new SolidBrush(poiSettings.IconColor), curvePoints);
+                            break;
                     }
                 }
 

@@ -39,8 +39,8 @@ namespace MapAssist.Settings
         public static PointOfInterestRendering Quest = Utils.GetRenderingSettingsForPrefix("Quest");
         public static PointOfInterestRendering Player = Utils.GetRenderingSettingsForPrefix("Player");
 
-        public static PointOfInterestRendering SuperChest =
-            Utils.GetRenderingSettingsForPrefix("SuperChest");
+        public static PointOfInterestRendering SuperChest = Utils.GetRenderingSettingsForPrefix("SuperChest");
+        public static PointOfInterestRendering Shrine = Utils.GetRenderingSettingsForPrefix("Shrine");
     }
 
     public static class Map
