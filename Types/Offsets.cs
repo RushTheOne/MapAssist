@@ -1,7 +1,3 @@
-
-
-using System;
-using System.Configuration;
 /**
 *   Copyright (C) 2021 okaygo
 *
@@ -20,6 +16,9 @@ using System.Configuration;
 *  You should have received a copy of the GNU General Public License
 *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+using System;
+using System.Configuration;
+
 namespace MapAssist.Types
 {
     public static class Offsets

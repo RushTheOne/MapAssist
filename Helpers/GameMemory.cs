@@ -215,7 +215,7 @@ namespace MapAssist.Helpers
                 {
                     var unitAny = Read<UnitAny>(processHandle, pListNext);
                     //why would we ever comment any of our code with anything useful? :D
-                    if (unitAny.Mode != 0 && unitAny.Mode != 12 && !NPCs.Dummies.Contains(unitAny.TxtFileNo))
+                    if (unitAny.Mode != 0 && unitAny.Mode != 12 && !NPCs.Dummies.TryGetValue(unitAny.TxtFileNo, out var _))
                     {
 
                         var monData = Read<MonsterData>(processHandle, unitAny.UnitData);
