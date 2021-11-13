@@ -26,6 +26,26 @@ namespace MapAssist
 {
     static class Program
     {
+        private static MapAssistConfiguration ReadConfiguration()
+        {
+            try
+            {
+                return new MapAssistConfiguration();
+            }
+            catch (ConfigurationReadException e)
+            {
+                MessageBox.Show(e.Message, "Configuration parsing error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Configuration parsing error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -34,10 +54,13 @@ namespace MapAssist
         {
             using (IKeyboardMouseEvents globalHook = Hook.GlobalEvents())
             {
-                var mapAssistConfiguration = new MapAssistConfiguration();
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Overlay(globalHook, mapAssistConfiguration));
+                MapAssistConfiguration mapAssistConfiguration = ReadConfiguration();
+
+                if(mapAssistConfiguration != null) { 
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new Overlay(globalHook, mapAssistConfiguration));
+                }
             }
         }
     }
