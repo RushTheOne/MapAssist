@@ -167,7 +167,7 @@ namespace MapAssist.Settings
             
             try
             {
-                T value = (T)Enum.Parse(typeof(T), ConfigurationManager.AppSettings["MapPosition"], true);
+                T value = (T)Enum.Parse(typeof(T), ConfigurationManager.AppSettings[configurationParameter], true);
                 return value;
             }
             catch (Exception)
