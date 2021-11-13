@@ -42,7 +42,7 @@ namespace MapAssist.Helpers
         private static Difficulty currentDifficulty = Difficulty.None;
         private static uint currentMapSeed = 0;
 
-        unsafe public static GameData GetGameData()
+        unsafe public static GameData GetGameData(MapAssistConfiguration configuration)
         {
             IntPtr processHandle = IntPtr.Zero;
 
@@ -80,7 +80,7 @@ namespace MapAssist.Helpers
                 IntPtr processAddress = gameProcess.MainModule.BaseAddress;
                 if (PlayerUnitPtr == IntPtr.Zero)
                 {
-                    var expansionCharacter = Read<byte>(processHandle, IntPtr.Add(processAddress, Offsets.ExpansionCheck)) == 1;
+                    var expansionCharacter = Read<byte>(processHandle, IntPtr.Add(processAddress, configuration.Offsets.ExpansionCheck)) == 1;
                     var userBaseOffset = 0x30;
                     var checkUser1 = 1;
                     if (expansionCharacter)
@@ -88,7 +88,7 @@ namespace MapAssist.Helpers
                         userBaseOffset = 0x70;
                         checkUser1 = 0;
                     }
-                    var unitHashTable = Read<UnitHashTable>(processHandle, IntPtr.Add(processAddress, Offsets.UnitHashTable));
+                    var unitHashTable = Read<UnitHashTable>(processHandle, IntPtr.Add(processAddress, configuration.Offsets.UnitHashTable));
                     foreach (var pUnitAny in unitHashTable.UnitTable)
                     {
                         var pListNext = pUnitAny;
@@ -171,11 +171,11 @@ namespace MapAssist.Helpers
                     throw new Exception("Level id out of bounds.");
                 }
 
-                var mapShownByte = Read<UiSettings>(processHandle, IntPtr.Add(processAddress, Offsets.UiSettings)).MapShown;
+                var mapShownByte = Read<UiSettings>(processHandle, IntPtr.Add(processAddress, configuration.Offsets.UiSettings)).MapShown;
                 var mapShown = mapShownByte == 1;
 
                 WarningMessages.Clear();
-                Monsters = GetMobs(processHandle, IntPtr.Add(processAddress, Offsets.UnitHashTable + (128 * 8)));
+                Monsters = GetMobs(processHandle, IntPtr.Add(processAddress, configuration.Offsets.UnitHashTable + (128 * 8)), configuration);
 
                 return new GameData
                 {
@@ -202,7 +202,7 @@ namespace MapAssist.Helpers
                 }
             }
         }
-        unsafe public static List<Monster> GetMobs(IntPtr processHandle, IntPtr startAddress)
+        unsafe public static List<Monster> GetMobs(IntPtr processHandle, IntPtr startAddress, MapAssistConfiguration configuration)
         {
             var monList = new List<Monster>();
 
@@ -234,13 +234,13 @@ namespace MapAssist.Helpers
                         var NPC = Enum.GetName(typeof(Npc), unitAny.TxtFileNo);
 
                         var SuperUnique = false;
-                        var NameInWarnList = Array.Exists(Map.WarnImmuneNPC, element => (element == Enum.GetName(typeof(Npc), unitAny.TxtFileNo)));
+                        var NameInWarnList = Array.Exists(configuration.Map.WarnImmuneNPC, element => (element == Enum.GetName(typeof(Npc), unitAny.TxtFileNo)));
                         var NameInWarnList2 = false;
                         if ((monData.MonsterType & MonsterTypeFlags.SuperUnique) == MonsterTypeFlags.SuperUnique)
                         {
                             NPCs.SuperUnique.TryGetValue(monName, out var SuperUniqueName);
                             SuperUnique = NPCs.SuperUniqueName(monName) == SuperUniqueName;
-                            NameInWarnList2 = Array.Exists(Map.WarnImmuneNPC, element => (element == SuperUniqueName));
+                            NameInWarnList2 = Array.Exists(configuration.Map.WarnImmuneNPC, element => (element == SuperUniqueName));
                             if (SuperUnique)
                             {
                                 NPC = SuperUniqueName;

@@ -27,27 +27,100 @@ using MapAssist.Types;
 
 namespace MapAssist.Settings
 {
-    public static class Rendering
+    public abstract class ConfigurationBase
     {
-        public static PointOfInterestRendering
+        protected abstract void ReadFromConfiguration();
+    }
+    public class RenderingConfiguration : ConfigurationBase
+    {
+        public RenderingConfiguration()
+        {
+            ReadFromConfiguration();
+        }
+
+        public PointOfInterestRendering NextArea { get; set; }
+        public PointOfInterestRendering PreviousArea { get; set; }
+        public PointOfInterestRendering Waypoint { get; set; } 
+        public PointOfInterestRendering Quest { get; set; } 
+        public PointOfInterestRendering Player { get; set; }
+        public PointOfInterestRendering SuperChest { get; set; } 
+
+        protected override void ReadFromConfiguration()
+        {
             NextArea = Utils.GetRenderingSettingsForPrefix("NextArea");
-
-        public static PointOfInterestRendering PreviousArea =
-            Utils.GetRenderingSettingsForPrefix("PreviousArea");
-
-        public static PointOfInterestRendering Waypoint = Utils.GetRenderingSettingsForPrefix("Waypoint");
-        public static PointOfInterestRendering Quest = Utils.GetRenderingSettingsForPrefix("Quest");
-        public static PointOfInterestRendering Player = Utils.GetRenderingSettingsForPrefix("Player");
-
-        public static PointOfInterestRendering SuperChest =
-            Utils.GetRenderingSettingsForPrefix("SuperChest");
+            PreviousArea = Utils.GetRenderingSettingsForPrefix("PreviousArea");
+            Waypoint = Utils.GetRenderingSettingsForPrefix("Waypoint");
+            Quest = Utils.GetRenderingSettingsForPrefix("Quest");
+            Player = Utils.GetRenderingSettingsForPrefix("Player");
+            SuperChest = Utils.GetRenderingSettingsForPrefix("SuperChest");
+        }
     }
 
-    public static class Map
+    public class MapConfiguration : ConfigurationBase
     {
-        public static readonly Dictionary<int, Color?> MapColors = new Dictionary<int, Color?>();
+        public MapConfiguration()
+        {
+            ReadFromConfiguration();
+        }
 
-        public static void InitMapColors()
+        public double Opacity { get; set; }
+        public bool OverlayMode { get; set; }
+        public bool AlwaysOnTop { get; set; }
+        public bool ToggleViaInGameMap { get; set; }
+        public int Size { get; set; }
+        public MapPosition Position { get; set; }
+        public int UpdateTime { get; set; }
+        public bool Rotate { get; set; }
+        public char ToggleKey { get; set; }
+        public char ZoomInKey { get; set; }
+        public char ZoomOutKey { get; set; }
+        public float ZoomLevel { get; set; }
+        public Area[] PrefetchAreas { get; set; }
+        public  Area[] HiddenAreas { get; set; } 
+        public string[] WarnImmuneNPC { get; set; }
+        public int WarnImmuneNPCFontSize { get; set; }
+        public string WarnImmuneNPCFont { get; set; }
+        public StringAlignment WarnNPCVerticalAlign { get; set; }
+        public StringAlignment WarnNPCHorizontalAlign { get; set; }
+        public Color WarnNPCFontColor { get; set; }
+        public bool ClearPrefetchedOnAreaChange { get; set; }
+
+        protected override void ReadFromConfiguration()
+        {
+            UpdateTime = ConfigurationReader.ReadInt16("UpdateTime");
+            Rotate = ConfigurationReader.ReadBoolean("Rotate");
+            ToggleKey = ConfigurationReader.ReadChar("ToggleKey");
+            ZoomInKey = ConfigurationReader.ReadChar("ZoomInKey");
+            ZoomOutKey = ConfigurationReader.ReadChar("ZoomOutKey");
+            ZoomLevel = ConfigurationReader.ReadSingle("ZoomLevelDefault");
+            Opacity = ConfigurationReader.ReadDouble("Opacity");
+            OverlayMode = ConfigurationReader.ReadBoolean("OverlayMode");
+            AlwaysOnTop = ConfigurationReader.ReadBoolean("AlwaysOnTop");
+            ToggleViaInGameMap = ConfigurationReader.ReadBoolean("ToggleViaInGameMap");
+            Size = ConfigurationReader.ReadInt16("Size");
+            Position = ConfigurationReader.ParseEnum<MapPosition>("MapPosition");
+            PrefetchAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationReader.ReadString("PrefetchAreas"));
+            HiddenAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationReader.ReadString("HiddenAreas"));
+            WarnImmuneNPC = Utils.ParseCommaSeparatedNpcsByName(ConfigurationReader.ReadString("WarnNPCImmune"));
+            WarnImmuneNPCFontSize = ConfigurationReader.ReadInt32("WarnNPCFontSize");
+            WarnImmuneNPCFont = ConfigurationReader.ReadString("WarnNPCFont");
+            WarnNPCVerticalAlign = ConfigurationReader.ParseEnum<StringAlignment>("WarnNPCVerticalAlign");
+            WarnNPCHorizontalAlign = ConfigurationReader.ParseEnum<StringAlignment>("WarnNPCHorizontalAlign");
+            WarnNPCFontColor = Utils.ParseColor(ConfigurationReader.ReadString("WarnNPCFontColor"));
+            ClearPrefetchedOnAreaChange = ConfigurationReader.ReadBoolean("ClearPrefetchedOnAreaChange");
+        }
+    }
+
+    public class MapColorConfiguration : ConfigurationBase
+    {
+        public MapColorConfiguration()
+        {
+            ReadFromConfiguration();
+        }
+
+        readonly Dictionary<int, Color?> _mapColors = new Dictionary<int, Color?>();
+
+        public void InitMapColors()
         {
             for (var i = -1; i < 600; i++)
             {
@@ -55,69 +128,85 @@ namespace MapAssist.Settings
             }
         }
 
-        public static Color? LookupMapColor(int type)
+        public Color? LookupMapColor(int type)
         {
             var key = "MapColor[" + type + "]";
 
-            if (!MapColors.ContainsKey(type))
+            if (!_mapColors.ContainsKey(type))
             {
-                var mapColorString = ConfigurationManager.AppSettings[key];
+                var mapColorString = ConfigurationReader.ReadString(key);
                 if (!string.IsNullOrEmpty(mapColorString))
                 {
-                    MapColors[type] = Utils.ParseColor(mapColorString);
+                    _mapColors[type] = Utils.ParseColor(mapColorString);
                 }
                 else
                 {
-                    MapColors[type] = null;
+                    _mapColors[type] = null;
                 }
             }
 
-            return MapColors[type];
+            return _mapColors[type];
         }
 
-        public static double Opacity = Convert.ToDouble(ConfigurationManager.AppSettings["Opacity"],
-            System.Globalization.CultureInfo.InvariantCulture);
-            
-        public static bool OverlayMode = Convert.ToBoolean(ConfigurationManager.AppSettings["OverlayMode"]);
-
-        public static bool AlwaysOnTop = Convert.ToBoolean(ConfigurationManager.AppSettings["AlwaysOnTop"]);
-
-        public static bool ToggleViaInGameMap =
-            Convert.ToBoolean(ConfigurationManager.AppSettings["ToggleViaInGameMap"]);
-
-        public static int Size = Convert.ToInt16(ConfigurationManager.AppSettings["Size"]);
-
-        public static MapPosition Position =
-            (MapPosition)Enum.Parse(typeof(MapPosition), ConfigurationManager.AppSettings["MapPosition"], true);
-
-        public static int UpdateTime = Convert.ToInt16(ConfigurationManager.AppSettings["UpdateTime"]);
-        public static bool Rotate = Convert.ToBoolean(ConfigurationManager.AppSettings["Rotate"]);
-        public static char ToggleKey = Convert.ToChar(ConfigurationManager.AppSettings["ToggleKey"]);
-        public static char ZoomInKey = Convert.ToChar(ConfigurationManager.AppSettings["ZoomInKey"]);
-        public static char ZoomOutKey = Convert.ToChar(ConfigurationManager.AppSettings["ZoomOutKey"]);
-        public static float ZoomLevel = Convert.ToSingle(ConfigurationManager.AppSettings["ZoomLevelDefault"]);
-
-        public static Area[] PrefetchAreas =
-            Utils.ParseCommaSeparatedAreasByName(ConfigurationManager.AppSettings["PrefetchAreas"]);
-
-        public static Area[] HiddenAreas =
-            Utils.ParseCommaSeparatedAreasByName(ConfigurationManager.AppSettings["HiddenAreas"]);
-
-        public static string[] WarnImmuneNPC =
-            Utils.ParseCommaSeparatedNpcsByName(ConfigurationManager.AppSettings["WarnNPCImmune"]);
-        public static int WarnImmuneNPCFontSize = Convert.ToInt32(ConfigurationManager.AppSettings["WarnNPCFontSize"]);
-        public static string WarnImmuneNPCFont = Convert.ToString(ConfigurationManager.AppSettings["WarnNPCFont"]);
-        public static StringAlignment WarnNPCVerticalAlign = (StringAlignment)Enum.Parse(typeof(StringAlignment), ConfigurationManager.AppSettings["WarnNPCVerticalAlign"]);
-        public static StringAlignment WarnNPCHorizontalAlign = (StringAlignment)Enum.Parse(typeof(StringAlignment), ConfigurationManager.AppSettings["WarnNPCHorizontalAlign"]);
-        public static Color WarnNPCFontColor = Utils.ParseColor(Convert.ToString(ConfigurationManager.AppSettings["WarnNPCFontColor"]));
-
-        public static bool ClearPrefetchedOnAreaChange =
-            Convert.ToBoolean(ConfigurationManager.AppSettings["ClearPrefetchedOnAreaChange"]);
+        protected override void ReadFromConfiguration()
+        {
+            InitMapColors();
+        }
     }
 
-    public static class Api
+    public class ApiConfiguration : ConfigurationBase
     {
-        public static string Endpoint = ConfigurationManager.AppSettings["ApiEndpoint"];
-        public static string Token = ConfigurationManager.AppSettings["ApiToken"];
+        public ApiConfiguration()
+        {
+            ReadFromConfiguration();
+        }
+        public string Endpoint { get; set; }
+        public string Token { get; set; }
+
+        protected override void ReadFromConfiguration()
+        {
+            Endpoint = ConfigurationReader.ReadString("ApiEndpoint");
+            Token = ConfigurationReader.ReadString("ApiToken");
+        }
+    }
+
+    public class OffsetConfiguration : ConfigurationBase
+    {
+        public OffsetConfiguration()
+        {
+            ReadFromConfiguration();
+        }
+        public int UnitHashTable { get; set; }
+        public int UiSettings { get; set; }
+        public int ExpansionCheck { get; set; }
+
+        protected override void ReadFromConfiguration()
+        {
+            UnitHashTable = ConfigurationReader.ReadInt32("UnitHashTable", 16);
+            UiSettings = ConfigurationReader.ReadInt32("UiSettings", 16);
+            ExpansionCheck = ConfigurationReader.ReadInt32("ExpansionCheck", 16);
+        }
+    }
+
+    public class MapAssistConfiguration : ConfigurationBase
+    {
+        public ApiConfiguration Api { get; private set; }
+        public MapColorConfiguration MapColors { get; private set; }
+        public MapConfiguration Map { get; private set; }
+        public RenderingConfiguration Rendering { get; private set; }
+        public OffsetConfiguration Offsets { get; private set; }
+
+        public MapAssistConfiguration()
+        {
+            ReadFromConfiguration();
+        }
+        protected override void ReadFromConfiguration()
+        {
+            Api = new ApiConfiguration();
+            MapColors = new MapColorConfiguration();
+            Map = new MapConfiguration();
+            Rendering = new RenderingConfiguration();
+            Offsets = new OffsetConfiguration();
+        }
     }
 }
