@@ -87,27 +87,27 @@ namespace MapAssist.Settings
 
         protected override void ReadFromConfiguration()
         {
-            UpdateTime = Convert.ToInt16(ConfigurationManager.AppSettings["UpdateTime"]);
-            Rotate = Convert.ToBoolean(ConfigurationManager.AppSettings["Rotate"]);
-            ToggleKey = Convert.ToChar(ConfigurationManager.AppSettings["ToggleKey"]);
-            ZoomInKey = Convert.ToChar(ConfigurationManager.AppSettings["ZoomInKey"]);
-            ZoomOutKey = Convert.ToChar(ConfigurationManager.AppSettings["ZoomOutKey"]);
-            ZoomLevel = Convert.ToSingle(ConfigurationManager.AppSettings["ZoomLevelDefault"]);
-            Opacity = Convert.ToDouble(ConfigurationManager.AppSettings["Opacity"], System.Globalization.CultureInfo.InvariantCulture);
-            OverlayMode = Convert.ToBoolean(ConfigurationManager.AppSettings["OverlayMode"]);
-            AlwaysOnTop = Convert.ToBoolean(ConfigurationManager.AppSettings["AlwaysOnTop"]);
-            ToggleViaInGameMap = Convert.ToBoolean(ConfigurationManager.AppSettings["ToggleViaInGameMap"]);
-            Size = Convert.ToInt16(ConfigurationManager.AppSettings["Size"]);
-            Position = (MapPosition)Enum.Parse(typeof(MapPosition), ConfigurationManager.AppSettings["MapPosition"], true);
-            PrefetchAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationManager.AppSettings["PrefetchAreas"]);
-            HiddenAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationManager.AppSettings["HiddenAreas"]);
-            WarnImmuneNPC = Utils.ParseCommaSeparatedNpcsByName(ConfigurationManager.AppSettings["WarnNPCImmune"]);
-            WarnImmuneNPCFontSize = Convert.ToInt32(ConfigurationManager.AppSettings["WarnNPCFontSize"]);
-            WarnImmuneNPCFont = Convert.ToString(ConfigurationManager.AppSettings["WarnNPCFont"]);
-            WarnNPCVerticalAlign = (StringAlignment)Enum.Parse(typeof(StringAlignment), ConfigurationManager.AppSettings["WarnNPCVerticalAlign"]);
-            WarnNPCHorizontalAlign = (StringAlignment)Enum.Parse(typeof(StringAlignment), ConfigurationManager.AppSettings["WarnNPCHorizontalAlign"]);
-            WarnNPCFontColor = Utils.ParseColor(Convert.ToString(ConfigurationManager.AppSettings["WarnNPCFontColor"]));
-            ClearPrefetchedOnAreaChange = Convert.ToBoolean(ConfigurationManager.AppSettings["ClearPrefetchedOnAreaChange"]);
+            UpdateTime = ConfigurationReader.ReadInt16("UpdateTime");
+            Rotate = ConfigurationReader.ReadBoolean("Rotate");
+            ToggleKey = ConfigurationReader.ReadChar("ToggleKey");
+            ZoomInKey = ConfigurationReader.ReadChar("ZoomInKey");
+            ZoomOutKey = ConfigurationReader.ReadChar("ZoomOutKey");
+            ZoomLevel = ConfigurationReader.ReadSingle("ZoomLevelDefault");
+            Opacity = ConfigurationReader.ReadDouble("Opacity");
+            OverlayMode = ConfigurationReader.ReadBoolean("OverlayMode");
+            AlwaysOnTop = ConfigurationReader.ReadBoolean("AlwaysOnTop");
+            ToggleViaInGameMap = ConfigurationReader.ReadBoolean("ToggleViaInGameMap");
+            Size = ConfigurationReader.ReadInt16("Size");
+            Position = ConfigurationReader.ParseEnum<MapPosition>("MapPosition");
+            PrefetchAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationReader.ReadString("PrefetchAreas"));
+            HiddenAreas = Utils.ParseCommaSeparatedAreasByName(ConfigurationReader.ReadString("HiddenAreas"));
+            WarnImmuneNPC = Utils.ParseCommaSeparatedNpcsByName(ConfigurationReader.ReadString("WarnNPCImmune"));
+            WarnImmuneNPCFontSize = ConfigurationReader.ReadInt32("WarnNPCFontSize");
+            WarnImmuneNPCFont = ConfigurationReader.ReadString("WarnNPCFont");
+            WarnNPCVerticalAlign = ConfigurationReader.ParseEnum<StringAlignment>("WarnNPCVerticalAlign");
+            WarnNPCHorizontalAlign = ConfigurationReader.ParseEnum<StringAlignment>("WarnNPCHorizontalAlign");
+            WarnNPCFontColor = Utils.ParseColor(ConfigurationReader.ReadString("WarnNPCFontColor"));
+            ClearPrefetchedOnAreaChange = ConfigurationReader.ReadBoolean("ClearPrefetchedOnAreaChange");
         }
     }
 
@@ -134,7 +134,7 @@ namespace MapAssist.Settings
 
             if (!_mapColors.ContainsKey(type))
             {
-                var mapColorString = ConfigurationManager.AppSettings[key];
+                var mapColorString = ConfigurationReader.ReadString(key);
                 if (!string.IsNullOrEmpty(mapColorString))
                 {
                     _mapColors[type] = Utils.ParseColor(mapColorString);
@@ -160,13 +160,13 @@ namespace MapAssist.Settings
         {
             ReadFromConfiguration();
         }
-        public string Endpoint { get; set; } = ConfigurationManager.AppSettings["ApiEndpoint"];
-        public string Token { get; set; } = ConfigurationManager.AppSettings["ApiToken"];
+        public string Endpoint { get; set; }
+        public string Token { get; set; }
 
         protected override void ReadFromConfiguration()
         {
-            Endpoint = ConfigurationManager.AppSettings["ApiEndpoint"];
-            Token = ConfigurationManager.AppSettings["ApiToken"];
+            Endpoint = ConfigurationReader.ReadString("ApiEndpoint");
+            Token = ConfigurationReader.ReadString("ApiToken");
         }
     }
 
@@ -182,9 +182,9 @@ namespace MapAssist.Settings
 
         protected override void ReadFromConfiguration()
         {
-            UnitHashTable = Convert.ToInt32(ConfigurationManager.AppSettings["UnitHashTable"], 16);
-            UiSettings = Convert.ToInt32(ConfigurationManager.AppSettings["UiSettings"], 16);
-            ExpansionCheck = Convert.ToInt32(ConfigurationManager.AppSettings["ExpansionCheck"], 16);
+            UnitHashTable = ConfigurationReader.ReadInt32("UnitHashTable", 16);
+            UiSettings = ConfigurationReader.ReadInt32("UiSettings", 16);
+            ExpansionCheck = ConfigurationReader.ReadInt32("ExpansionCheck", 16);
         }
     }
 

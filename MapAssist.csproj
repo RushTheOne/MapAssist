@@ -119,6 +119,7 @@
     <Compile Include="Helpers\MapApi.cs" />
     <Compile Include="Helpers\Compositor.cs" />
     <Compile Include="Helpers\WindowsExternal.cs" />
+    <Compile Include="Settings\ConfigurationUtility.cs" />
     <Compile Include="Structs\Act.cs" />
     <Compile Include="Structs\Monster.cs" />
     <Compile Include="Structs\UiSettings.cs" />
