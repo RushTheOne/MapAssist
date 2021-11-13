@@ -20,6 +20,7 @@
 using System;
 using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
+using MapAssist.Settings;
 
 namespace MapAssist
 {
@@ -33,9 +34,10 @@ namespace MapAssist
         {
             using (IKeyboardMouseEvents globalHook = Hook.GlobalEvents())
             {
+                var mapAssistConfiguration = new MapAssistConfiguration();
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Overlay(globalHook));
+                Application.Run(new Overlay(globalHook, mapAssistConfiguration));
             }
         }
     }

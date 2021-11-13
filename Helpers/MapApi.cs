@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
+using MapAssist.Settings;
 using MapAssist.Types;
 using Newtonsoft.Json;
 using System;
@@ -35,15 +36,17 @@ namespace MapAssist.Helpers
 {
     public class MapApi : IDisposable
     {
-        public static readonly HttpClient Client = HttpClient(Settings.Api.Endpoint, Settings.Api.Token);
+        public static HttpClient Client;
         private readonly string _sessionId;
         private readonly ConcurrentDictionary<Area, AreaData> _cache;
         private readonly BlockingCollection<Area[]> _prefetchRequests;
         private readonly Thread _thread;
         private readonly HttpClient _client;
+        private readonly MapAssistConfiguration _configuration;
 
         private string CreateSession(Difficulty difficulty, uint mapSeed)
         {
+
             var values = new Dictionary<string, uint>
             {
                 { "difficulty", (uint)difficulty },
@@ -67,9 +70,11 @@ namespace MapAssist.Helpers
             response.EnsureSuccessStatusCode();
         }
 
-        public MapApi(HttpClient client, Difficulty difficulty, uint mapSeed)
+        public MapApi(Difficulty difficulty, uint mapSeed, MapAssistConfiguration configuration)
         {
-            _client = client;
+            _configuration = configuration;
+            Client = HttpClient(configuration.Api.Endpoint, configuration.Api.Token);
+            _client = Client;
             _sessionId = CreateSession(difficulty, mapSeed);
             // Cache for pre-fetching maps for the surrounding areas.
             _cache = new ConcurrentDictionary<Area, AreaData>();
@@ -80,9 +85,9 @@ namespace MapAssist.Helpers
             };
             _thread.Start();
 
-            if (Settings.Map.PrefetchAreas.Any())
+            if (configuration.Map.PrefetchAreas.Any())
             {
-                _prefetchRequests.Add(Settings.Map.PrefetchAreas);
+                _prefetchRequests.Add(configuration.Map.PrefetchAreas);
             }
         }
 
@@ -109,7 +114,7 @@ namespace MapAssist.Helpers
             while (true)
             {
                 Area[] areas = _prefetchRequests.Take();
-                if (Settings.Map.ClearPrefetchedOnAreaChange)
+                if (_configuration.Map.ClearPrefetchedOnAreaChange)
                 {
                     _cache.Clear();
                 }

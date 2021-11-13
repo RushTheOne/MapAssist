@@ -34,14 +34,16 @@ namespace MapAssist.Helpers
         public readonly Point CropOffset;
         private readonly IReadOnlyList<PointOfInterest> _pointsOfInterest;
         private readonly Dictionary<(string, int), Font> _fontCache = new Dictionary<(string, int), Font>();
+        private MapAssistConfiguration _configuration;
 
         private readonly Dictionary<(Shape, int, Color), Bitmap> _iconCache =
             new Dictionary<(Shape, int, Color), Bitmap>();
 
-        public Compositor(AreaData areaData, IReadOnlyList<PointOfInterest> pointOfInterest)
+        public Compositor(AreaData areaData, IReadOnlyList<PointOfInterest> pointOfInterest, MapAssistConfiguration configuration)
         {
             _areaData = areaData;
             _pointsOfInterest = pointOfInterest;
+            _configuration = configuration;
             (_background, CropOffset) = DrawBackground(areaData, pointOfInterest);
         }
 
@@ -65,11 +67,11 @@ namespace MapAssist.Helpers
                 Point localPlayerPosition = gameData.PlayerPosition
                     .OffsetFrom(_areaData.Origin)
                     .OffsetFrom(CropOffset)
-                    .OffsetFrom(new Point(Settings.Rendering.Player.IconSize, Settings.Rendering.Player.IconSize));
+                    .OffsetFrom(new Point(_configuration.Rendering.Player.IconSize, _configuration.Rendering.Player.IconSize));
                 
-                if (Settings.Rendering.Player.CanDrawIcon())
+                if (_configuration.Rendering.Player.CanDrawIcon())
                 {
-                    Bitmap playerIcon = GetIcon(Settings.Rendering.Player);
+                    Bitmap playerIcon = GetIcon(_configuration.Rendering.Player);
                     imageGraphics.DrawImage(playerIcon, localPlayerPosition);
                 }
 
@@ -119,7 +121,7 @@ namespace MapAssist.Helpers
             {
                 double biggestDimension = Math.Max(image.Width, image.Height);
 
-                multiplier = Settings.Map.Size / biggestDimension;
+                multiplier = _configuration.Map.Size / biggestDimension;
 
                 if (multiplier == 0)
                 {
@@ -135,7 +137,7 @@ namespace MapAssist.Helpers
             }
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (scale && Settings.Map.Rotate)
+            if (scale && _configuration.Map.Rotate)
             {
                 image = ImageUtils.RotateImage(image, 53, true, false, Color.Transparent);
             }
@@ -162,7 +164,7 @@ namespace MapAssist.Helpers
                     for (var x = 0; x < areaData.CollisionGrid[y].Length; x++)
                     {
                         int type = areaData.CollisionGrid[y][x];
-                        Color? typeColor = Settings.Map.MapColors[type];
+                        Color? typeColor = _configuration.MapColors.LookupMapColor(type);
                         if (typeColor != null)
                         {
                             background.SetPixel(x, y, (Color)typeColor);

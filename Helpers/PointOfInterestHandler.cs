@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using MapAssist.Settings;
 using MapAssist.Types;
 
 namespace MapAssist.Helpers
@@ -51,7 +52,7 @@ namespace MapAssist.Helpers
             GameObject.ArcaneSmallChestRight
         };
 
-        public static List<PointOfInterest> Get(MapApi mapApi, AreaData areaData)
+        public static List<PointOfInterest> Get(MapApi mapApi, AreaData areaData, MapAssistConfiguration configuration)
         {
             List<PointOfInterest> pointOfInterest = new List<PointOfInterest>();
 
@@ -82,7 +83,7 @@ namespace MapAssist.Helpers
                         {
                             Label = realTomb.Name(),
                             Position = areaData.AdjacentLevels[realTomb].Exits[0],
-                            RenderingSettings = Settings.Rendering.NextArea
+                            RenderingSettings = configuration.Rendering.NextArea
                         }); ;
                     }
 
@@ -101,7 +102,7 @@ namespace MapAssist.Helpers
                                 {
                                     Label = highestArea.Name(),
                                     Position = areaData.AdjacentLevels[highestArea].Exits[0],
-                                    RenderingSettings = Settings.Rendering.NextArea
+                                    RenderingSettings = configuration.Rendering.NextArea
                                 });
                             }
                         }
@@ -120,7 +121,7 @@ namespace MapAssist.Helpers
                                 {
                                     Label = level.Area.Name(),
                                     Position = position,
-                                    RenderingSettings = Settings.Rendering.PreviousArea
+                                    RenderingSettings = configuration.Rendering.PreviousArea
                                 });
                             }
                         }
@@ -146,7 +147,7 @@ namespace MapAssist.Helpers
                     {
                         Label = obj.ToString(),
                         Position = points[0],
-                        RenderingSettings = Settings.Rendering.Waypoint
+                        RenderingSettings = configuration.Rendering.Waypoint
                     });
                 }
                 // Quest objects
@@ -156,7 +157,7 @@ namespace MapAssist.Helpers
                     {
                         Label = obj.ToString(),
                         Position = points[0],
-                        RenderingSettings = Settings.Rendering.Quest
+                        RenderingSettings = configuration.Rendering.Quest
                     });
                 }
                 // Chests
@@ -168,7 +169,7 @@ namespace MapAssist.Helpers
                         {
                             Label = obj.ToString(),
                             Position = point,
-                            RenderingSettings = Settings.Rendering.SuperChest
+                            RenderingSettings = configuration.Rendering.SuperChest
                         });
                     }
                 }
@@ -181,7 +182,7 @@ namespace MapAssist.Helpers
                             {
                                 Label = obj.ToString(),
                                 Position = points[0],
-                                RenderingSettings = Settings.Rendering.Quest
+                                RenderingSettings = configuration.Rendering.Quest
                             });
                         }
                         break;
